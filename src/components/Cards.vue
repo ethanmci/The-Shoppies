@@ -62,9 +62,16 @@ export default {
     page: Number,
     nominationList: Array,
   },
+  data() {
+    return {
+      searchUrl: "",
+      movies: null,
+      placeholder: "@/assets/images/missing.jpg",
+    };
+  },
   watch: {
     search(newSearch) {
-      console.log("debug: changed search value");
+      //console.log("debug: changed search value");
       axios
         .get(
           "http://www.omdbapi.com/?s=" +
@@ -76,7 +83,7 @@ export default {
         .then((response) => (this.movies = response));
     },
     page() {
-      console.log("debug: changed page number!");
+      //console.log("debug: changed page number!");
       if (this.search != "") {
         axios
           .get(
@@ -88,17 +95,18 @@ export default {
           )
           .then((response) => (this.movies = response));
       }
-      if (this.movies.data.Search.length > 10) {
-        console.log("last page!");
+    },
+    movies(newMovies) {
+      if (newMovies.data.Response == "True") {
+        if (newMovies.data.Search.length < 10) {
+          this.$emit("last-page-check", true);
+        } else {
+          this.$emit("last-page-check", false);
+        }
+      } else {
+        this.$emit("last-page-check", true);
       }
     },
-  },
-  data() {
-    return {
-      searchUrl: "",
-      movies: null,
-      placeholder: "@/assets/images/missing.jpg",
-    };
   },
   methods: {
     nominate(movie) {
